@@ -5,6 +5,9 @@ from dotenv import load_dotenv
 load_dotenv()
 
 link = os.getenv('YOUTUBE_LINK')
+download_path = 'downloads'
+if not os.path.exists(download_path):
+    os.makedirs(download_path)
 
 print("Youtube Link: ", link)
 if link == "":
@@ -38,6 +41,7 @@ ydl_opts = {
     }],
     'logger': MyLogger(),
     'progress_hooks': [my_hook],
+    'outtmpl': os.path.join(download_path, '%(title)s.%(ext)s')
 }
 with yt_dlp.YoutubeDL(ydl_opts) as ydl:
     ydl.download(
