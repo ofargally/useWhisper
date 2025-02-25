@@ -1,5 +1,5 @@
 from __future__ import unicode_literals
-import youtube_dl
+import yt_dlp
 import os
 from dotenv import load_dotenv
 load_dotenv()
@@ -7,6 +7,10 @@ load_dotenv()
 link = os.getenv('YOUTUBE_LINK')
 
 print("Youtube Link: ", link)
+if link == "":
+    print("Please add a link to the .env file")
+    exit()
+print("Downloading...")
 
 
 class MyLogger(object):
@@ -35,6 +39,6 @@ ydl_opts = {
     'logger': MyLogger(),
     'progress_hooks': [my_hook],
 }
-with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+with yt_dlp.YoutubeDL(ydl_opts) as ydl:
     ydl.download(
         [link])
