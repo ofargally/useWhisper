@@ -32,7 +32,8 @@ logger = WhisperLogger()
 
 # Load environment variables
 load_dotenv()
-audio_path = os.getenv('AUDIO_LINK')
+# audio_path = os.getenv('AUDIO_LINK')
+audio_path = "./downloads/untitled.mp3"
 logger.info(f"Audio Link: {audio_path}")
 
 if audio_path == "":
@@ -44,17 +45,13 @@ pipe = pipeline(
     "automatic-speech-recognition",
     model="openai/whisper-large-v3",
     torch_dtype=torch.float16,
-    device="mps",  # use "mps" for Mac devices
+    device="cpu",  # use "mps" for Mac devices
     model_kwargs={"attn_implementation": "flash_attention_2"} if is_flash_attn_2_available() else {
         "attn_implementation": "sdpa"},
 )
 
 # Load processor from a specific Whisper checkpoint
 processor = WhisperProcessor.from_pretrained("openai/whisper-large-v3")
-
-# Specify language and task
-forced_decoder_ids = processor.get_decoder_prompt_ids(
-    language="zh", task="transcribe")
 
 logger.info("Starting transcription...")
 gc.collect()
@@ -63,7 +60,6 @@ torch.cuda.empty_cache()
 logger.info("Processing audio...")
 outputs = pipe(
     audio_path,
-    forced_decoder_ids=forced_decoder_ids,
     chunk_length_s=10,
     batch_size=4,
     return_timestamps=True,
@@ -74,7 +70,7 @@ logger.info("Saving transcription...")
 if not os.path.exists('downloads'):
     os.makedirs('downloads')
 
-output_file = os.path.join('downloads', 'transcription.json')
+output_file = os.path.join('downloads', 'transcription1.json')
 with open(output_file, 'w', encoding='utf-8') as f:
     json.dump(outputs, f, ensure_ascii=False, indent=2)
 logger.info(f"Transcription saved to {output_file}")
